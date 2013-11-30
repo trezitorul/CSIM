@@ -1,0 +1,4 @@
+CSIM
+====
+
+Coil Simulator Software
