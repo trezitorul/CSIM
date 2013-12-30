@@ -24,6 +24,8 @@ using PyPlot
 # <codecell>
 
 #Converts vector of vector into len(A)x3 matrix for plotting
+#Arguments: A: vector of N 3D-vectors
+#Return: a matrix of dimension Nx3
 function converter(A)
   newA=[[testSpiral[n][1] for n=[1:length(testSpiral)]],[testSpiral[n][2] for n=[1:length(testSpiral)]],[testSpiral[n][3] for n=[1:length(testSpiral)]]]
   return reshape(newA,length(A),3)
@@ -36,6 +38,7 @@ end
 #Be added in at the very end for proper scaling. 
 #Finally this biotSavart law does not include the dTheta term in dl because that is supplied by quadgk in the B 
 #Calculator Below
+#TODO: adding description for inputs
 mu=1
 function biotSavart(I,f,df,r,theta)
   dl=df(theta)
@@ -48,6 +51,7 @@ end
 # <codecell>
 
 #Calculates the magnetic field due to the wire given by function f.
+#TODO: adding description for inputs
 function B(I,f,df,r, thetaMax)
   BF=quadgk(theta -> biotSavart(I,f,df,r,theta),0,thetaMax)
   return BF
@@ -56,6 +60,7 @@ end
 # <codecell>
 
 #Plots the contour plot of the magnetic field of B
+#TODO: adding description for inputs
 function mFieldSliceZ(I,f,df,thetaMax,W,Z,res)
   #print([-W:res:W])
   magField=[B(I,f,df,[x,y,Z],thetaMax)[1][3] for x=[-W:res:W],y=[-W:res:W]]
@@ -68,6 +73,7 @@ end
 # <codecell>
 
 #Plots the function of the coil that is parametrized in the function f at 
+#TODO: adding description for inputs, finish the description above
 function plotF(f,thetaMax,res)
   line=[f(theta) for theta=[0:res:thetaMax]]
   plot3D([line[n][1] for n=[1:length(line)]],[line[n][2] for n=[1:length(line)]],[line[n][3] for n=[1:length(line)]])
@@ -84,12 +90,14 @@ end
 # <codecell>
 
 #The magnetic field in this ring is easy to calculate analytically so I will compute it first.
+#TODO: adding description for inputs
 function ring(R,Z,theta)
   return [R*cos(theta),R*sin(theta),Z]
 end
 
 # <codecell>
 
+#TODO: adding description for inputs, write the documentation for this function
 function dring(R,Z,theta)
   return [-R*sin(theta),R*cos(theta),0]
 end
@@ -97,6 +105,7 @@ end
 # <codecell>
 
 #Test of the line plotter to verify our ring parametrization
+#TODO: you can factor out the test codes to separate files?
 plotF(theta->ring(1,0,theta),2*pi,.01)
 
 # <codecell>
@@ -168,6 +177,7 @@ colorbar(plt)
 # <codecell>
 
 #Simple 2D spiral with start radius of R0, and incremental size increase of dw for complete period of theta
+#TODO: adding description for inputs
 function spiral(dw,R0,z,theta)
   r=dw*theta+R0
   return [r*cos(theta),r*sin(theta),z]
@@ -176,6 +186,7 @@ end
 # <codecell>
 
 #Simple 2D spiral with start radius of R0, and incremental size increase of dw for complete period of theta
+#TODO: adding description for inputs
 function dspiral(dw,R0,z,theta)
   r=dw*theta+R0
   return [dw*cos(theta)-r*sin(theta),dw*sin(theta)+r*cos(theta),0]
