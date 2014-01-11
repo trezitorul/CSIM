@@ -24,13 +24,13 @@ include("coilUtils.jl")
 include("assemblyDes.jl")
 
 #Contains the code for the visualization tools with the code
-#include("visualizationUtils.jl")
+include("visualUtils.jl")
 
 #Contains the code for the optimization utilities for the simulator
 #include("optimizationUtils.jl")
 
 #Contains the code for the computational aspect of the simulator
-#include("BUtils.jl")
+include("BUtils.jl")
 
 end
 

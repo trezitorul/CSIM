@@ -17,7 +17,7 @@ end
 
 #Runs all unit tests, and returns true if all pass
 
-function autoTestAll():
+function autoTestAl():
 	print("Testing BiotSavart")
 	BiotSavartLawTest()
 	print("Testing LoretnzForceLawTest")
@@ -36,8 +36,10 @@ end
 
 using CSIM
 
-test=Coil(theta->circle(theta),theta->dcircle(theta),0,6.3)
+test=Coil(theta->circle(theta),theta->dcircle(theta),0,2*pi)
 #test=translate(test,[0,0,1])
 #plotter(test,.1)
 asb=Assembly([test,translate(test,[0,0,1])])
-plotter(asb,.1)
+plotter(asb,.01)
+println(B(1,test,[0,0,1])[1][3])
+mFieldSliceZ(1,test,1,1,.1)

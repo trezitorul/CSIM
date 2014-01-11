@@ -6,6 +6,8 @@
 #and the rotation of the system given by two angles theta (vertical angle) and phi(horizontal angle)
 #IE: [(coil,[x,y,z,theta,phi]),(more),(coils)]
 
+export getAllCoilPairs,plotter
+
 function createAssembly(in)
 	assembly=CSIM.assembly(in)
 end
