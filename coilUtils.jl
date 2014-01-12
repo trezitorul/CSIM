@@ -10,18 +10,32 @@ using PyPlot
 
 export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plotter,translate,rotate
 
-function plotter(coil::Coil,res)
+#Plots the coil in 3D, useful for sanity checking if coil function is reasonable
+#Parameters:
+#coil, represents the geometry of the coil being plotted
+#res, resolution with which the coil is plotted
+function plotter(coil::Coil,res::Number)
   line=[coil.f(theta) for theta=[coil.xMin:res:coil.xMax]]
   plot3D([line[n][1] for n=[1:length(line)]],[line[n][2] for n=[1:length(line)]],[line[n][3] for n=[1:length(line)]])
 end
 
+#Translates the coil by a vector r
+#Parameters:
+#coil, represents the geometry of the coil being plotted
+#r, array which is the 3D vector which represents how much to translate the original coil object by
 function translate(coil::Coil,r)
-	newCoil=Coil(coil.f,coil.df,coil.xMin,coil.xMax)
+	newCoil=Coil(coil.f,coil.df,coil.xMin,coil.xMax,coil.I)
 	f(theta)=coil.f(theta)+r
 	newCoil.f=theta->coil.f(theta)+r
 	return newCoil
 end
 
+#Rotates the coil object by angles xRot, yRot,zRot
+#Parameters:
+#coil, represents the geometry of the coil being plotted
+#xRot, number in DEGREES representing the rotation about the x axis
+#yRot, number in DEGREES representing the rotation about the y axis
+#zRot, number in DEGREES representing the rotation about the z axis
 function rotate(coil::Coil,xRot,yRot,zRot)
 	print("Warning This Function is not yet complete")
 	newCoil=coil
@@ -33,18 +47,22 @@ function rotate(coil::Coil,xRot,yRot,zRot)
 	return newCoil
 end
 
+#TODO
 function inductance(coil::Coil)
 	print("Warning this function has not been implemented yet")
 end
 
+#TODO
 function resistance(coil::Coil)
 	print("Warning this function has not been implemented yet")
 end
 
+#TODO
 function coilLen(coil::Coil)
 	print("Warning this function has not yet been implemented")
 end
 
+#TODO
 function weight(coil::Coil)
 	print("Warning this function has not yet been implemented")
 end 

@@ -12,10 +12,10 @@ export mFieldSliceZ3D, mFieldSliceZ2D
 #W, number width of the plotting area (will plot a 2W by 2W square centered on zero)
 #Z, number which represents the distance from 0 that the B field is measured at
 #res, number representing the resolution with which the plots are made
-function mFieldSliceZ3D(I::Number,coil::Coil,W::Number,Z::Number,res::Number)
+function mFieldSliceZ3D(coil::Coil,W::Number,Z::Number,res::Number)
   figure()
   subplot(111,projection="3d")
-  magField=[B(I,coil,[x,y,Z])[1][3] for x=[-W:res:W],y=[-W:res:W]]
+  magField=[B(coil,[x,y,Z])[3] for x=[-W:res:W],y=[-W:res:W]]
   #print(magField)
   x=[-W:res:W]
   plt=contourf(x,x,magField,100)
@@ -29,10 +29,10 @@ end
 #W, number width of the plotting area (will plot a 2W by 2W square centered on zero)
 #Z, number which represents the distance from 0 that the B field is measured at
 #res, number representing the resolution with which the plots are made
-function mFieldSliceZ2D(I,coil::Coil,W,Z,res)
+function mFieldSliceZ2D(coil::Coil,W,Z,res)
   figure()
   subplot(111)
-  magField=[B(I,coil,[x,y,Z])[1][3] for x=[-W:res:W],y=[-W:res:W]]
+  magField=[B(coil,[x,y,Z])[3] for x=[-W:res:W],y=[-W:res:W]]
   #print(magField)
   x=[-W:res:W]
   plt=contourf(x,x,magField,100)

@@ -15,9 +15,7 @@ export getAllCoilPairs,plotter
 function getAllCoilPairs(assembly::Assembly,selected::Int64)
 	out=[]
 	for tcoils=assembly.coils
-		if tcoils!=assembly.coils[selected]
-			vcat(out,[(assembly.coils[selected],tcoils)])
-		end	
+		vcat(out,[(assembly.mCoil,tcoils)])
 	end
 	return out
 end
@@ -27,6 +25,7 @@ end
 #assembly, collection of coils
 #res, resolution with which to plot
 function plotter(assembly::Assembly,res::Number)
+	plotter(assembly.mCoil,res)
 	for kcoil=assembly.coils
 		plotter(kcoil,res)
 	end

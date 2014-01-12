@@ -12,10 +12,12 @@ type Coil
 	df::Function#The derivative of f also returns an array with 3 elements
 	xMin::Number#Starting value of the parameterization
 	xMax::Number#Ending value of the parametrization
+	I::Number#Current flowing through the Coil
 end
 
 #Geometric configuration of the coils
 type Assembly
+	mCoil::Coil#The mobile coil, IE the coil for which we want to calculate the forces involved
 	coils::Array{Coil,1}#Array of coils, used to store a particular geometric configuration of coils
 end
 
