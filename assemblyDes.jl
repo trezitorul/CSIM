@@ -8,21 +8,25 @@
 
 export getAllCoilPairs,plotter
 
-function createAssembly(in)
-	assembly=CSIM.assembly(in)
-end
-
-function getAllCoilPairs(assembly)
+#Returns tuples containing all pairings between the selected coil (where the force is calculated) 
+#Parameters:
+#assembly, description of a particular arrangment of coils
+#selected, the coil number of the coil where we wish to calculate the force
+function getAllCoilPairs(assembly::Assembly,selected::Int64)
 	out=[]
-	for i=length(assembly.coils)
-		for k=i:length(assembly.coils)
-			vcat(out,[(assembly.coils[i],assembly.coils[k])])
-		end
+	for tcoils=assembly.coils
+		if tcoils!=assembly.coils[selected]
+			vcat(out,[(assembly.coils[selected],tcoils)])
+		end	
 	end
 	return out
 end
 
-function plotter(assembly::Assembly,res)
+#Plots all of the coils in the assembly together, to verify the sanity of the assembly
+#Parameters:
+#assembly, collection of coils
+#res, resolution with which to plot
+function plotter(assembly::Assembly,res::Number)
 	for kcoil=assembly.coils
 		plotter(kcoil,res)
 	end

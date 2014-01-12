@@ -4,13 +4,40 @@
 #mFieldSliceZ(Assembly): Plots a slice of the magnetic field on a plane perpendicular to the Z axis
 #3DContourPlot(Assembly), plots the magnetic contour lines in 3DContour
 #ForceVDistPlot(Assembly), plots the magnetic force vs distance
-export mFieldSliceZ
-#Plots the contour plot of the magnetic field of B
-function mFieldSliceZ(I,coil::Coil,W,Z,res)
-  #print([-W:res:W])
+export mFieldSliceZ3D, mFieldSliceZ2D
+#Plots the contour plot of the magnetic field of B on a plane perpendicular to the Z axis,showing the magnitude on the z axis
+#Parameters:
+#I, number representing the magnitude of the current
+#Coil, geometry of the coil being energized
+#W, number width of the plotting area (will plot a 2W by 2W square centered on zero)
+#Z, number which represents the distance from 0 that the B field is measured at
+#res, number representing the resolution with which the plots are made
+function mFieldSliceZ3D(I::Number,coil::Coil,W::Number,Z::Number,res::Number)
+  figure()
+  subplot(111,projection="3d")
   magField=[B(I,coil,[x,y,Z])[1][3] for x=[-W:res:W],y=[-W:res:W]]
   #print(magField)
   x=[-W:res:W]
   plt=contourf(x,x,magField,100)
   colorbar(plt)
 end
+
+#Plots the contour plot of the magnetic field of B on a plane perpendicular to the Z axis
+#Parameters:
+#I, number representing the magnitude of the current
+#Coil, geometry of the coil being energized
+#W, number width of the plotting area (will plot a 2W by 2W square centered on zero)
+#Z, number which represents the distance from 0 that the B field is measured at
+#res, number representing the resolution with which the plots are made
+function mFieldSliceZ2D(I,coil::Coil,W,Z,res)
+  figure()
+  subplot(111)
+  magField=[B(I,coil,[x,y,Z])[1][3] for x=[-W:res:W],y=[-W:res:W]]
+  #print(magField)
+  x=[-W:res:W]
+  plt=contourf(x,x,magField,100)
+  colorbar(plt)
+end
+
+
+

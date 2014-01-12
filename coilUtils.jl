@@ -10,30 +10,6 @@ using PyPlot
 
 export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plotter,translate,rotate
 
-function createCoil(f,df,xMin,xMax)
-	return Coil(f,df,xMin,xMax)
-end
-
-function getCoilParams(coil)
-	return (coil.f,coil.df,coil.xMin,coil.xMax)
-end
-
-function getCoilF(coil)
-	return coil.f
-end
-
-function getCoildF(coil)
-	return coil.df
-end
-
-function getCoilxMax(coil)
-	return coil.xMax
-end
-
-function getCoilxMin(coil)
-	return coil.xMin
-end
-
 function plotter(coil::Coil,res)
   line=[coil.f(theta) for theta=[coil.xMin:res:coil.xMax]]
   plot3D([line[n][1] for n=[1:length(line)]],[line[n][2] for n=[1:length(line)]],[line[n][3] for n=[1:length(line)]])
