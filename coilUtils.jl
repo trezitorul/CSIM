@@ -30,18 +30,42 @@ function translate(coil::Coil,r)
 	return newCoil
 end
 
+#Parameters:
+#value: value in degrees
+#return: angle in rad
+function degree_to_rad(value)
+	return value / 180 * pi
+end
+
 #Rotates the coil object by angles xRot, yRot,zRot
 #Parameters:
 #coil, represents the geometry of the coil being plotted
 #xRot, number in DEGREES representing the rotation about the x axis
 #yRot, number in DEGREES representing the rotation about the y axis
 #zRot, number in DEGREES representing the rotation about the z axis
+#NOTE: assuming the angle of rotation between -180 to 180, but should work for any angle
+#using formula from here: http://en.wikipedia.org/wiki/Rotation_matrix
 function rotate(coil::Coil,xRot,yRot,zRot)
-	print("Warning This Function is not yet complete")
+	print("Warning This Function is only assumed to be correct, but not tested :)")
 	newCoil=coil
 	Rx=eye(3)
+	theta_x = degree_to_rad(xRot)
+	Rx[2,2] = cos(theta_x)
+	Rx[3,3] = cos(theta_x)
+	Rx[2,3] = -sin(theta_x)
+	Rx[3,2] = sin(theta_x)
 	Ry=eye(3)
+	theta_y = degree_to_rad(yRot)
+	Ry[1,1] = cos(theta_y)
+	Ry[1,3] = sin(theta_y)
+	Ry[3,1] = -sin(theta_y)
+	Ry[3,3] = cos(theta_y)
 	Rz=eye(3)
+	theta_z = degree_to_rad(zRot)
+	Rz[1,1] = cos(theta_z)
+	Rz[1,2] = -sin(theta_z)
+	Rz[2,1] = sin(theta_z)
+	Rz[2,2] = cos(theta_z)
 	R=Rx*Ry*Rz
 	newCoil.f=theta->R*coil.f(theta)
 	return newCoil
