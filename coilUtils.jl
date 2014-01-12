@@ -67,7 +67,9 @@ function rotate(coil::Coil,xRot,yRot,zRot)
 	Rz[2,1] = sin(theta_z)
 	Rz[2,2] = cos(theta_z)
 	R=Rx*Ry*Rz
+	# not sure if this is correct - where does theta comes from?
 	newCoil.f=theta->R*coil.f(theta)
+	# coil.f = R*coil.f
 	return newCoil
 end
 
