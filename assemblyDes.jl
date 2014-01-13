@@ -25,7 +25,6 @@ end
 #assembly, collection of coils
 #res, resolution with which to plot
 function plotter(assembly::Assembly,res::Number)
-	plotter(assembly.mCoil,res)
 	for kcoil=assembly.coils
 		plotter(kcoil,res)
 	end
