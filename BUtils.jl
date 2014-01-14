@@ -47,7 +47,7 @@ end
 #asb, Assembly that we use to compute the magnetic field acting on the mCoil
 #Note: The B used is missing the mu scaling so the force involved here is multiplied by 10^7
 function lorentzForce(mCoil::Coil,asb::Assembly)
-  return quadgk(theta->mCoil.I*cross(mCoil.df(theta),B(asb,mCoil.f(theta))[1]),mCoil.xMin,mCoil.xMax)
+  return quadgk(theta->mCoil.I*cross(mCoil.df(theta),B(asb,mCoil.f(theta))),mCoil.xMin,mCoil.xMax)[1]
 end
 
 #Implementation of lorentz force law between a single mobile Coil and a list of various assemblies, used to calculate the effect of multiple assemblies on one coil which we want to move.
@@ -61,7 +61,6 @@ function lorentzForce(mCoil::Coil, asbs)
       netF=netF+lorentzForce(mCoil,tasb)
     end
     return netF
-  end
 end
 
 #Implementation of the lorentz force law between an assembly designated the mobile assembly(mAsb) and a list of assemblies. This is because usually there is a fixed assembly and the assembly we want to calculate the force given.

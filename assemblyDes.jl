@@ -25,6 +25,7 @@ end
 #assembly, collection of coils
 #res, resolution with which to plot
 function plotter(assembly::Assembly,res::Number)
+	figure()
 	for kcoil=assembly.coils
 		plotter(kcoil,res)
 	end
