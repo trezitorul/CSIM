@@ -78,17 +78,26 @@ function inductance(coil::Coil)
 	print("Warning this function has not been implemented yet")
 end
 
-#TODO
-function resistance(coil::Coil)
-	print("Warning this function has not been implemented yet")
+#Calculates the resistance of a coil
+#Parameters:
+#coil, coil whose resistance we wish to know
+#resistance, the resistance per meter of the wire used to make the coil
+function resistance(coil::Coil,resistance::Number)
+	return coilLen(coil)*resistance
 end
 
-#TODO
+#This function calculates the length of a coil
+#Parameters:
+#coil, the coil whose length we wish to know
 function coilLen(coil::Coil)
-	print("Warning this function has not yet been implemented")
+	return quadgk(norm(coil.df),coil.xMin,coil.xMax)
 end
 
-#TODO
-function weight(coil::Coil)
-	print("Warning this function has not yet been implemented")
+#This function calculates the weight of a coil given the density of the wire and its radius
+#Parameters:
+#coil, coil whose weight we wish to measure
+#density, density of the metal being used for the coil
+#radius, radius of the wire being used for the coil
+function weight(coil::Coil,density::Number, radius::Number)
+	return coilLen(coil)*density*pi*radius^2
 end 
