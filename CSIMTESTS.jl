@@ -1,14 +1,5 @@
 #These are the unit tests for the CSIM module, each function is tested here
 
-
-function circle(theta)
-	return [cos(theta),sin(theta),0]
-end
-
-function dcircle(theta)
-	return [-sin(theta),cos(theta),0]
-end
-
 function generateTestAssembly(case)
 	testCoil=
 	if case==1 #Two Circles of radius 1 meter with spacing 1 meter

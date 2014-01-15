@@ -35,5 +35,8 @@ include("visualUtils.jl")
 #Contains the code for the computational aspect of the simulator
 include("BUtils.jl")
 
+#Contains library of possible coil functions
+include("coilLib.jl")
+
 end
 

@@ -8,7 +8,7 @@
 
 using PyPlot
 
-export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plotter,translate,rotate
+export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plotter,translate,rotate,coilLen,resistance,weight
 
 #Plots the coil in 3D, useful for sanity checking if coil function is reasonable
 #Parameters:
@@ -90,7 +90,7 @@ end
 #Parameters:
 #coil, the coil whose length we wish to know
 function coilLen(coil::Coil)
-	return quadgk(norm(coil.df),coil.xMin,coil.xMax)
+	return quadgk(theta->norm(coil.df(theta)),coil.xMin,coil.xMax)[1]
 end
 
 #This function calculates the weight of a coil given the density of the wire and its radius
