@@ -1,7 +1,8 @@
 # examples from here:
 # http://docs.julialang.org/en/latest/manual/parallel-computing/
 # run the file by typing: julia -p 2 multicoreExample.jl
-# this will set the number of processes = 2
+# this will set the number of workers = 2
+# usually we can set the number of workers = number of processes
 
 # run function rand with arguments (2, 2) on process 2
 r = remotecall(2, rand, 2, 2)
@@ -36,11 +37,17 @@ b = @spawn add_lots_numbers(1000000)
 println(fetch(a) + fetch(b))
 # for your needs, something such as this might suffice
 
-# we can do this too
-nheads = @parallel (+) for i=1:200000000
-  int(randbool())
+# we can do other parallel computating styles as well
+# first, intialize a simple array a = [1, 2, 3, ..., 1000]
+a = zeros(1000)
+for i=1:1000
+	a[i] = i
 end
-println(nheads)
+# we can compute the sum of a like this:
+sums_of_a = @parallel (+) for i=1:1000
+	a[i]
+end
+println(sums_of_a)
 
 
 # tips:
