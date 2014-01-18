@@ -8,7 +8,7 @@
 
 using PyPlot
 
-export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plotter,translate,rotate
+export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plotter,translate,rotate,coilLen,resistance,weight
 
 #Plots the coil in 3D, useful for sanity checking if coil function is reasonable
 #Parameters:
@@ -78,17 +78,26 @@ function inductance(coil::Coil)
 	print("Warning this function has not been implemented yet")
 end
 
-#TODO
-function resistance(coil::Coil)
-	print("Warning this function has not been implemented yet")
+#Calculates the resistance of a coil
+#Parameters:
+#coil, coil whose resistance we wish to know
+#resistance, the resistance per meter of the wire used to make the coil
+function resistance(coil::Coil,resistance::Number)
+	return coilLen(coil)*resistance
 end
 
-#TODO
+#This function calculates the length of a coil
+#Parameters:
+#coil, the coil whose length we wish to know
 function coilLen(coil::Coil)
-	print("Warning this function has not yet been implemented")
+	return quadgk(theta->norm(coil.df(theta)),coil.xMin,coil.xMax)[1]
 end
 
-#TODO
-function weight(coil::Coil)
-	print("Warning this function has not yet been implemented")
+#This function calculates the weight of a coil given the density of the wire and its radius
+#Parameters:
+#coil, coil whose weight we wish to measure
+#density, density of the metal being used for the coil
+#radius, radius of the wire being used for the coil
+function weight(coil::Coil,density::Number, radius::Number)
+	return coilLen(coil)*density*pi*radius^2
 end 

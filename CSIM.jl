@@ -17,7 +17,6 @@ end
 
 #Geometric configuration of the coils
 type Assembly
-	mCoil::Coil#The mobile coil, IE the coil for which we want to calculate the forces involved
 	coils::Array{Coil,1}#Array of coils, used to store a particular geometric configuration of coils
 end
 
@@ -35,6 +34,9 @@ include("visualUtils.jl")
 
 #Contains the code for the computational aspect of the simulator
 include("BUtils.jl")
+
+#Contains library of possible coil functions
+include("coilLib.jl")
 
 end
 
