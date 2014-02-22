@@ -6,9 +6,10 @@ using CSIM
 using NLopt
 
 count=0
+esr=.001
 #plotter(tCoil(.01,1,1),.01)
 tCoil(Dr,Width,r0,I)=Coil(theta->linSpiral(Dr,Width,r0,theta)[1],theta->dLinSpiral(Dr,Width,r0,theta),0,linSpiral(Dr,Width,r0,0)[2],I)
-voltage=10
+voltage=30
 println("Starting Optimizer")
 function f(x::Vector,grad::Vector)
 	global count
@@ -16,10 +17,10 @@ function f(x::Vector,grad::Vector)
 #	println("f_$count($x)")
 
 	coil=tCoil(x[1],x[2],.0254,1)
-	current=voltage/resistance(coil,87.5/1000)
+	current=voltage/(resistance(coil,87.5/1000)+esr)
 	coil.I=current
-	if coil.I>=100
-		coil.I=100
+	if coil.I>=300
+		coil.I=300
 	end
 	masb=Assembly([coil])
 	tasb=Assembly([translate(coil,[0,0,.001])])
@@ -28,7 +29,7 @@ end
 
 
 opt = Opt(:LN_SBPLX,2)
-lower_bounds!(opt,[.00052,.0033])
+lower_bounds!(opt,[0.0000828,.0000828])
 upper_bounds!(opt,[.0254,.0254])
 
 xtol_rel!(opt,1e-4)
