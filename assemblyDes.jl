@@ -37,7 +37,7 @@ end
 
 function asbLen(assembly::Assembly)
 	len=coilLen(assembly.coils[1])
-	for coil=assembly.coils[2:]
+	for coil=assembly.coils[2:end]
 		len=len+coilLen(coil)
 	end
 	return len

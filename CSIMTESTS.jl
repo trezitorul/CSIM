@@ -1,4 +1,5 @@
 #These are the unit tests for the CSIM module, each function is tested here
+using CSIM
 
 function generateTestAssembly(case)
 	testCoil=
@@ -43,20 +44,20 @@ end
 
 
 
-using CSIM
+
 
 test=Coil(theta->circle(theta),theta->dcircle(theta),0,2*pi,1)
 t1asb=Assembly([translate(test,[0,0,1])])
 #test=translate(test,[0,0,1])
-plotter(test,.1)
+#plotter(test,.1)
 asb=Assembly([test,translate(test,[0,0,1])])
 plotter(asb,.01)
 println(B(test,[1,0,1]))
 print(lorentzForce(test,t1asb))
-mFieldSliceZ3D(test,1,1,.1,1)
-mFieldSliceZ3D(test,1,1,.1,2)
-mFieldSliceZ3D(test,1,1,.1,3)
-mFieldSliceZ2D(test,1,1,.1,1)
-mFieldSliceZ2D(test,1,1,.1,2)
-mFieldSliceZ2D(test,1,1,.1,3)
+#mFieldSliceZ3D(test,1,1,.1,1)
+#mFieldSliceZ3D(test,1,1,.1,2)
+#mFieldSliceZ3D(test,1,1,.1,3)
+#mFieldSliceZ2D(test,1,1,.1,1)
+#mFieldSliceZ2D(test,1,1,.1,2)
+#mFieldSliceZ2D(test,1,1,.1,3)
 #autoTestAll(1)

@@ -23,4 +23,3 @@ end
 function dLinSpiral(Dr,Width,r0,theta)
 	return [-Dr*cos(theta)-(r0-Dr*theta)*sin(theta),-Dr*sin(theta)+(r0-Dr*theta)*cos(theta),0]
 end
-
