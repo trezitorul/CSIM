@@ -13,12 +13,12 @@ mu0=(1/10^7)
 #1. This biotSavart law does not include the dTheta term in dl because that is supplied by quadgk in the B Calculator below, since it does not make any sense to compute the magnetic field due to a point current
 #2. This integrand also does not include the magnetic permitivity, this is because the integrand does not need it.
 function biotSavart(coil::Coil,theta::Number,r)
-  dl=coil.df(theta)
-  dr=r-coil.f(theta)
-  ldr=norm(dr)*norm(dr)*norm(dr)
+    f, dl = position(coil, theta)
+  dr=r-f
+  ldr=norm(dr)
   #print(ldr)
   #ldr=sqrt(dr[1]^2+dr[2]^2+dr[3]^2)
-  f=coil.I*cross(dl,dr)/ldr
+  f=current(coil)*cross(dl,dr)/(ldr*ldr*ldr)
   return f
 end
 
@@ -78,21 +78,23 @@ function zForce(coil1::Coil, coil2::Coil)
   return hcubature(x->zIntegrand(coil1,coil2,x),[coil1.xMin,coil2.xMin],[coil1.xMax,coil2.xMax],reltol=.001)
 end
 
-function lorentzIntegrand(coil1::Coil,coil2::Coil, x)
-  theta1=x[1]
-  theta2=x[2]
-  #println((theta1,theta2))
-  #println("f")
-  #println(coil1.f(5))
-  #println("biotSavart")
-  #println(coil2)
-  #println("theta")
-  #println(theta2)
-  #println("f")
-  #println(coil1.f(theta1))
-  #println("actual")
-  #println(biotSavart(coil2,theta2,coil1.f(theta1)))
-  return coil1.I*cross(coil1.df(theta1),biotSavart(coil2,theta2,coil1.f(theta1)))
+function lorentzIntegrand(coil1::Coil,coil2::Coil, x, out)
+    theta1=x[1]
+    theta2=x[2]
+    #println((theta1,theta2))
+    #println("f")
+    #println(coil1.f(5))
+    #println("biotSavart")
+    #println(coil2)
+    #println("theta")
+    #println(theta2)
+    #println("f")
+    #println(coil1.f(theta1))
+    #println("actual")
+    #println(biotSavart(coil2,theta2,coil1.f(theta1)))
+    f, df = position(coil1, theta1)
+    v = current(coil1)*cross(df,biotSavart(coil2,theta2,f))
+    out[:] = v
 end
 
 function lorentzForce(coil1::Coil,coil2::Coil)
@@ -101,7 +103,7 @@ function lorentzForce(coil1::Coil,coil2::Coil)
   #println((coil2.xMin,coil2.xMax))
   #println("Start Integral")
 
-  return hcubature(3,(x,out) -> out[:] = lorentzIntegrand(coil1,coil2,x),[coil1.xMin,coil2.xMin],[coil1.xMax,coil2.xMax],reltol=.01,error_norm = Cubature.L1)
+  return hcubature(3,(x,out) -> lorentzIntegrand(coil1,coil2,x,out),[minimum(coil1),minimum(coil2)],[maximum(coil1),maximum(coil2)],reltol=.01,error_norm = Cubature.L1)
 end
 #Base implementation of the lorentz force law. In this case the B fields from the assembly acting on the mobile coil returns the force on the mobile coil
 #Parameters:

@@ -20,17 +20,6 @@ function plotter(coil::Coil,res::Number)
   zlabel("Z Axis (mm)")
 end
 
-#Translates the coil by a vector r
-#Parameters:
-#coil, represents the geometry of the coil being plotted
-#r, array which is the 3D vector which represents how much to translate the original coil object by
-function translate(coil::Coil,r)
-	newCoil=Coil(coil.f,coil.df,coil.xMin,coil.xMax,coil.I)
-	f(theta)=coil.f(theta)+r
-	newCoil.f=theta->coil.f(theta)+r
-	return newCoil
-end
-
 #Parameters:
 #value: value in degrees
 #return: angle in rad
