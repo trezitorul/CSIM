@@ -6,8 +6,6 @@
 
 #This is the complete description of a coil that allows for the computational features to compute parameters of the coil.
 
-using PyPlot
-
 export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plotter,translate,rotate,coilLen,resistance,weight
 
 #Plots the coil in 3D, useful for sanity checking if coil function is reasonable
@@ -16,7 +14,10 @@ export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plott
 #res, resolution with which the coil is plotted
 function plotter(coil::Coil,res::Number)
   line=[coil.f(theta) for theta=[coil.xMin:res:coil.xMax]]
-  plot3D([line[n][1] for n=[1:length(line)]],[line[n][2] for n=[1:length(line)]],[line[n][3] for n=[1:length(line)]])
+  plot3D([1000*line[n][1] for n=[1:length(line)]],[line[n][2]*1000 for n=[1:length(line)]],[line[n][3]*1000 for n=[1:length(line)]])
+  xlabel("X Axis (mm)")
+  ylabel("Y Axis (mm)")
+  zlabel("Z Axis (mm)")
 end
 
 #Translates the coil by a vector r

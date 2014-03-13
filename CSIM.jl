@@ -6,6 +6,8 @@ module CSIM
 
 export Coil,Assembly
 
+using PyPlot
+
 type Coil
 	#f and df are both parametrized functions with on changing parameter x
 	f::Function#Geometry of the coil, returns an array with 3 elements for each parameter points
