@@ -16,28 +16,29 @@ end
 using ImmutableArrays
 
 type linSpiral <: Coil
-    Dr::Float64
-    Width::Float64
-    r0::Float64
-    I::Float64
-    offset::Vector3{Float64}
+    Dr::Float64#Decay rate of the spiral
+    rIn::Float64#Width of the anulus (specifies maximum theta) allows for holes in the spiral
+    rOut::Float64 #Initial outer radius of the spiral
+    I::Float64#
+    offset::Vector3{Float64}#Translation of the spiral in space
 
-    linSpiral(Dr,Width,r0,I,offset::Vector3{Float64}=Vector3(0.,0.,0.)) =
-        new(Dr,Width,r0,I,offset)
+    linSpiral(Dr,rIn,rOut,I,offset::Vector3{Float64}=Vector3(0.,0.,0.)) =
+        new(Dr,rIn,rOut,I,offset)
 end
 
+export minimum,maximum, current,current!,position,translate
+#Required for the declaration of the lintype
 minimum(c::linSpiral) = 0.
-maximum(c::linSpiral) = c.Width / c.Dr
-current(c::linSpiral) = I
+maximum(c::linSpiral) = (c.rOut-c.rIn) / c.Dr
+current(c::linSpiral) = c.I
 current!(c::linSpiral) = (c.I = I)
 
-translate(c::linSpiral, r::Vector3{Float64}) = linSpiral(c.Dr, c.Width, c.r0,
-                                                         c.I, c.offset + r)
+translate(c::linSpiral, r::Vector3{Float64}) = linSpiral(c.Dr, c.rIn, c.rOut, c.I, c.offset + r)
 
-function position(L::linSpiral, theta)
+function position(L::linSpiral, theta)#Has the x, and dx/dtheta for the function representing theta
     c = cos(theta)
     s = sin(theta)
-    r = L.r0 - L.Dr*theta
+    r = L.rOut - L.Dr*theta
     return (L.offset + Vector3(r*c,r*s,0.0),
             Vector3(-L.Dr*c - r*s, -L.Dr*s + r*c, 0.0))
 end

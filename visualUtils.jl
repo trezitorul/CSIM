@@ -83,7 +83,7 @@ function zForceVsDistPlot(coil1::Coil, coil2::Coil, start::Float64, stop::Float6
   y=Array(Float64,length(x))
   for i=[1:length(x)]
     println(x[i]/x[end])
-    y[i]=lorentzForce(coil1,translate(coil2,[0,0,x[i]]))[1][3]/10^7
+    y[i]=lorentzForce(coil1,translate(coil2,Vector3(0.,0.,x[i])))[1][3]/10^7
   end
   plot(1000*x,y,linewidth=2,color="black")
   xlabel("Separation between Coils (mm)")

@@ -13,7 +13,7 @@ export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plott
 #coil, represents the geometry of the coil being plotted
 #res, resolution with which the coil is plotted
 function plotter(coil::Coil,res::Number)
-  line=[coil.f(theta) for theta=[coil.xMin:res:coil.xMax]]
+  line=[position(coil,theta)[1] for theta=[minimum(coil):res:maximum(coil)]]
   plot3D([1000*line[n][1] for n=[1:length(line)]],[line[n][2]*1000 for n=[1:length(line)]],[line[n][3]*1000 for n=[1:length(line)]])
   xlabel("X Axis (mm)")
   ylabel("Y Axis (mm)")

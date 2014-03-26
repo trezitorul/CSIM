@@ -1,8 +1,8 @@
 using CSIM
 using ImmutableArrays
 
-tCoil1(Dr,Width,r0)=linSpiral(Dr,Width,r0,250.0)
-tCoil2(Dr,Width,r0)=linSpiral(Dr,Width,r0,250.0)
+tCoil1(Dr,rIn,rOut)=linSpiral(Dr,rIn,rOut,250.0)
+tCoil2(Dr,rIn,rOut)=linSpiral(Dr,rIn,rOut,250.0)
 function diaConverter(diameter)
 	return (diameter/6.28)
 end
@@ -30,13 +30,13 @@ dr=diaConverter(.0010236)
 # tic()
 #force=lorentzForce(asb1,[asb2])
 println("hello")
-@time force=lorentzForce(tCoil1(0.0001294,.0254,.0254),translate(tCoil2(0.0001294,.0254,.0254),Vector3(0.,0.,.0001)))
+@time force=lorentzForce(tCoil1(0.0001294,0,.0254),translate(tCoil2(0.0001294,0,.0254),Vector3(0.,0.,.0001)))
 #force=zForce(tCoil1(0.0001294,.0254,.0254),translate(tCoil2(0.0001294,.0254,.0254),[0,0,.0001]))
 println("Force from Lorentz Formula")
 println(force)
 println(force[1]/10^7)
 # toc()
-@profile lorentzForce(tCoil1(0.0001294,.0254,.0254),translate(tCoil2(0.0001294,.0254,.0254),Vector3(0.,0.,.0001)))
+@profile lorentzForce(tCoil1(0.0001294,0,.0254),translate(tCoil2(0.0001294,0,.0254),Vector3(0.,0.,.0001)))
 #mFieldSliceZ3D(tCoil(.00052,.0254,.0254),.03,.001,.001,1)
 #mFieldSliceZ3D(tCoil(.00052,.0254,.0254),.03,.001,.001,2)
 #mFieldSliceZ3D(tCoil(.00052,.0254,.0254),.03,.001,.001,3)

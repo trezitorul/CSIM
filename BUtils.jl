@@ -97,13 +97,13 @@ function lorentzIntegrand(coil1::Coil,coil2::Coil, x, out)
     out[:] = v
 end
 
-function lorentzForce(coil1::Coil,coil2::Coil)
+function lorentzForce(coil1::Coil,coil2::Coil,reltoler=.001)
   #("New Lorentz Integrator")
   #println((coil1.xMin,coil1.xMax))
   #println((coil2.xMin,coil2.xMax))
   #println("Start Integral")
 
-  return hcubature(3,(x,out) -> lorentzIntegrand(coil1,coil2,x,out),[minimum(coil1),minimum(coil2)],[maximum(coil1),maximum(coil2)],reltol=.01,error_norm = Cubature.L1)
+  return hcubature(3,(x,out) -> lorentzIntegrand(coil1,coil2,x,out),[minimum(coil1),minimum(coil2)],[maximum(coil1),maximum(coil2)],reltol=reltoler,error_norm = Cubature.L1)
 end
 #Base implementation of the lorentz force law. In this case the B fields from the assembly acting on the mobile coil returns the force on the mobile coil
 #Parameters:
