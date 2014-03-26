@@ -1,7 +1,7 @@
 #BUtils.jl
 #This is where the magnetic calculation models and utlities reside
-export biotSavart,B,lorentzForce
-
+export biotSavart,B,lorentzForce,zForce
+using Cubature
 #mu0=mu/(4pi), mu is the magnetic permitivity
 mu0=(1/10^7)
 #The biotSavart function is the function that implements the Integrand of the Biot-Savart Law from E&M. This law yields the magnetic field at a point r in 3D space given a point current of magnitude I.
@@ -13,10 +13,12 @@ mu0=(1/10^7)
 #1. This biotSavart law does not include the dTheta term in dl because that is supplied by quadgk in the B Calculator below, since it does not make any sense to compute the magnetic field due to a point current
 #2. This integrand also does not include the magnetic permitivity, this is because the integrand does not need it.
 function biotSavart(coil::Coil,theta::Number,r)
-  dl=coil.df(theta)
-  dr=r-coil.f(theta)
-  ldr=sqrt(dr[1]^2+dr[2]^2+dr[3]^2)
-  f=coil.I*cross(dl,dr)/ldr^3
+    f, dl = position(coil, theta)
+  dr=r-f
+  ldr=norm(dr)
+  #print(ldr)
+  #ldr=sqrt(dr[1]^2+dr[2]^2+dr[3]^2)
+  f=current(coil)*cross(dl,dr)/(ldr*ldr*ldr)
   return f
 end
 
@@ -42,6 +44,7 @@ function multiquadgk(F,xMin,xMax)
   end
   return sum1
 end
+
 #Calculates the magnetic field due a coil with constant current I flowing through it, at field point r
 #Parameters:
 #Coil, the geometry of the coil involved
@@ -63,13 +66,63 @@ function B(asb::Assembly,r)
   return netB
 end
 
+#Calculates the force but only in the Z direction.
+#Was implemented in order to save time and computational costs associated with 
+function zIntegrand(coil1::Coil,coil2::Coil,x)
+  dr=coil1.f(x[1])-coil2.f(x[2])
+  ldr=sqrt(dr[1]^2+dr[2]^2+dr[3]^2)
+  return coil1.I*coil2.I*(coil1.df(x[1])[3]*(coil2.df(x[2])'*dr)-dr[3]*(coil1.df(x[1])'*coil2.df(x[2])))/ldr^3
+end
+
+function zForce(coil1::Coil, coil2::Coil)
+  return hcubature(x->zIntegrand(coil1,coil2,x),[coil1.xMin,coil2.xMin],[coil1.xMax,coil2.xMax],reltol=.001)
+end
+
+function lorentzIntegrand(coil1::Coil,coil2::Coil, x, out)
+    theta1=x[1]
+    theta2=x[2]
+    #println((theta1,theta2))
+    #println("f")
+    #println(coil1.f(5))
+    #println("biotSavart")
+    #println(coil2)
+    #println("theta")
+    #println(theta2)
+    #println("f")
+    #println(coil1.f(theta1))
+    #println("actual")
+    #println(biotSavart(coil2,theta2,coil1.f(theta1)))
+    f, df = position(coil1, theta1)
+    v = current(coil1)*cross(df,biotSavart(coil2,theta2,f))
+    out[:] = v
+end
+
+function lorentzForce(coil1::Coil,coil2::Coil)
+  #("New Lorentz Integrator")
+  #println((coil1.xMin,coil1.xMax))
+  #println((coil2.xMin,coil2.xMax))
+  #println("Start Integral")
+
+  return hcubature(3,(x,out) -> lorentzIntegrand(coil1,coil2,x,out),[minimum(coil1),minimum(coil2)],[maximum(coil1),maximum(coil2)],reltol=.01,error_norm = Cubature.L1)
+end
 #Base implementation of the lorentz force law. In this case the B fields from the assembly acting on the mobile coil returns the force on the mobile coil
 #Parameters:
 #mCoil, coil that we want to calculate the force on given the magnetic field from the assembly
 #asb, Assembly that we use to compute the magnetic field acting on the mCoil
 #Note: The B used is missing the mu scaling so the force involved here is multiplied by 10^7
 function lorentzForce(mCoil::Coil,asb::Assembly)
-  return quadgk(theta->mCoil.I*cross(mCoil.df(theta),B(asb,mCoil.f(theta))),mCoil.xMin,mCoil.xMax)
+  #println("lorentzForce")
+  #println(lorentzForce(mCoil,asb.coils[1]))
+  #println("hello")
+  netF=lorentzForce(mCoil,asb.coils[1])[1]
+  #println(netF)
+  #println("Length of ASB")
+  #println(length(asb.coils))
+  #println(netF)
+  for tcoils=asb.coils[2:end]
+    netF+=lorentzForce(mCoil,tcoils)[1]
+  end
+  return netF 
 end
 
 #Implementation of lorentz force law between a single mobile Coil and a list of various assemblies, used to calculate the effect of multiple assemblies on one coil which we want to move.

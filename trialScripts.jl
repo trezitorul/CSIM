@@ -1,7 +1,8 @@
-@everywhere using CSIM
+using CSIM
+using ImmutableArrays
 
-tCoil1(Dr,Width,r0)=Coil(theta->linSpiral(Dr,Width,r0,theta)[1],theta->dLinSpiral(Dr,Width,r0,theta),0,linSpiral(Dr,Width,r0,0)[2],250)
-tCoil2(Dr,Width,r0)=Coil(theta->linSpiral(Dr,Width,r0,theta)[1],theta->dLinSpiral(Dr,Width,r0,theta),0,linSpiral(Dr,Width,r0,0)[2],250)
+tCoil1(Dr,Width,r0)=linSpiral(Dr,Width,r0,250.0)
+tCoil2(Dr,Width,r0)=linSpiral(Dr,Width,r0,250.0)
 function diaConverter(diameter)
 	return (diameter/6.28)
 end
@@ -9,8 +10,8 @@ end
 
 dr=diaConverter(.0010236)
 
-asb1=Assembly([tCoil1(0.0001294,.0254,.0254)])
-asb2=Assembly([translate(tCoil2(0.0001294,.0254,.0254),[0,0,.0001])])
+#asb1=Assembly([tCoil1(0.0001294,.0254,.0254)])
+#asb2=Assembly([translate(tCoil2(0.0001294,.0254,.0254),Vector3(0.,0.,.0001))])
 
 
 #asb1=Assembly([tCoil(.00052,.0254,.0254),translate(tCoil(.00052,.0254,.0254),[0,0,-.00052])])
@@ -26,11 +27,16 @@ asb2=Assembly([translate(tCoil2(0.0001294,.0254,.0254),[0,0,.0001])])
 
 #stack=generateStackAsb(tCoil(.00052,.0254,.0254),.00052,10)
 #plotter(stack,.1)
-tic()
-force=lorentzForce(asb1,[asb2])
+# tic()
+#force=lorentzForce(asb1,[asb2])
+println("hello")
+@time force=lorentzForce(tCoil1(0.0001294,.0254,.0254),translate(tCoil2(0.0001294,.0254,.0254),Vector3(0.,0.,.0001)))
+#force=zForce(tCoil1(0.0001294,.0254,.0254),translate(tCoil2(0.0001294,.0254,.0254),[0,0,.0001]))
 println("Force from Lorentz Formula")
-println(force/10^7)
-toc()
+println(force)
+println(force[1]/10^7)
+# toc()
+@profile lorentzForce(tCoil1(0.0001294,.0254,.0254),translate(tCoil2(0.0001294,.0254,.0254),Vector3(0.,0.,.0001)))
 #mFieldSliceZ3D(tCoil(.00052,.0254,.0254),.03,.001,.001,1)
 #mFieldSliceZ3D(tCoil(.00052,.0254,.0254),.03,.001,.001,2)
 #mFieldSliceZ3D(tCoil(.00052,.0254,.0254),.03,.001,.001,3)

@@ -6,18 +6,22 @@ module CSIM
 
 export Coil,Assembly
 
-type Coil
-	#f and df are both parametrized functions with on changing parameter x
-	f::Function#Geometry of the coil, returns an array with 3 elements for each parameter points
-	df::Function#The derivative of f also returns an array with 3 elements
-	xMin::Number#Starting value of the parameterization
-	xMax::Number#Ending value of the parametrization
-	I::Number#Current flowing through the Coil
-end
+using PyPlot
+
+# abstract type representing a coil geometry
+abstract Coil
+# each concrete subtype of Coil should implement the following methods:
+#  x, dx/dtheta = position(c::Coil, theta)
+#  minimum(c::Coil) : the starting theta
+#  maximum(c::Coil) : the ending theta
+#  current(c::Coil) : current I flowing through the coil
+#  current!(c::Coil, I) : sets current to I
+#  translate(c::Coil, r) : translate coil by a vector r
+import Base: minimum, maximum
 
 #Geometric configuration of the coils
 type Assembly
-	coils::Array{Coil,1}#Array of coils, used to store a particular geometric configuration of coils
+	coils::Vector{Coil} # Array of coils, used to store a particular geometric configuration of coils
 end
 
 #Contains the module coilUtils that has utilities related to the coil type
