@@ -5,8 +5,8 @@
 #An assembly is a collection of coils along with a translation vector given in x,y,z coordinates,
 #and the rotation of the system given by two angles theta (vertical angle) and phi(horizontal angle)
 #IE: [(coil,[x,y,z,theta,phi]),(more),(coils)]
-
-export getAllCoilPairs,plotter,asbLen,weight,resistance, generateStackAsb
+using ImmutableArrays
+export getAllCoilPairs,plotter,asbLen,weight,resistance, generateStackAsb,current!,translate!,translate
 
 #Returns tuples containing all pairings between the selected coil (where the force is calculated) 
 #Parameters:
@@ -25,12 +25,22 @@ end
 #assembly, collection of coils
 #res, resolution with which to plot
 function plotter(assembly::Assembly,res::Number)
-	figure()
+	#figure()
 	for kcoil=assembly.coils
 		plotter(kcoil,res)
 	end
 end
 
+
+#Plots all of the coils in a list of assemblies together, to verify the sanity of the assembly
+#Parameters:
+#asbs: list of assemblies to be plotted
+#res, resolution with which to plot
+function plotter(asbs::Array{Assembly},res)
+	for i=asbs
+		plotter(i,res)
+	end
+end
 #This function calculates the length of wire required to build the assembly in question. This does exclude connector pieces
 #Parameters:
 #assembly, assembly whose length we wish to know
@@ -66,5 +76,36 @@ end
 #spacing, distance between coils in the stack
 #num, number of coils in the stack
 function generateStackAsb(coil::Coil,spacing::Number,num::Number)
-	return Assembly([translate(coil,[0,0,z]) for z=[0:spacing:(num-1)*spacing]])
+	return Assembly([translate(coil,Vector3(0.,0.,z)) for z=[0:spacing:(num-1)*spacing]])
+end
+
+#Translates an entire assembly rigidly by a vector r
+#Parameters:
+#asb assembly to be translated
+#r, Vector3 representing the r that the asb will be translated by.
+function translate(asb::Assembly,r::Vector3{Float64})
+	output=deepcopy(asb)
+	for i=1:length(asb.coils)
+		translate!(output[i],r)
+	end
+	return output
+end
+
+#Translates an entire assembly rigidly by a vector r
+#Note performs the operation in place 
+#Parameters:
+#asb assembly to be translated
+#r, Vector3 representing the r that the asb will be translated by.
+function translate!(asb::Assembly,r::Vector3{Float64})
+	for i=1:length(asb.coils)
+	#	println("Translate")
+		translate!(asb.coils[i],r)
+	end
+	#println("FinishedTranslate")
+end
+
+function current!(asb::Assembly, I::Float64)
+	for i=1:length(asb.coils)
+		current!(asb.coils[i],I)
+	end
 end

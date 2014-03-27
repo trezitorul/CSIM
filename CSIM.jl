@@ -42,5 +42,8 @@ include("BUtils.jl")
 #Contains library of possible coil functions
 include("coilLib.jl")
 
+#Contains time based simulation utilities
+include("timeUtils.jl")
+
 end
 
