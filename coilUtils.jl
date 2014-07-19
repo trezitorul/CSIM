@@ -6,8 +6,10 @@
 
 #This is the complete description of a coil that allows for the computational features to compute parameters of the coil.
 
-export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plotter,translate,rotate,coilLen,resistance,weight
+export createCoil,getCoilParams,getCoilF,getCoildF,getCoilxMax,getCoilxMin,plotter,translate,rotate,coilLen,resistance,weight,inductance
 
+using Cubature
+include("coilLib.jl")
 #Plots the coil in 3D, useful for sanity checking if coil function is reasonable
 #Parameters:
 #coil, represents the geometry of the coil being plotted
@@ -63,10 +65,37 @@ function rotate(coil::Coil,xRot,yRot,zRot)
 	return newCoil
 end
 
-#TODO
-function inductance(coil::Coil)
-	print("Warning this function has not been implemented yet")
+#Calculates the inductance of a single layer coil
+#Parameters:
+#coil, coil whose inductance we wish to calculate
+#reltoler is the relative tolerance that the integrator will integrate to.
+function inductance(coil::linSpiral,reltoler=.001)
+	rmax=coil.rOut
+	coil.I=1.0
+	z=coil.offset[3]+coil.Dr*pi#The z component of the coil (assumed parallel to the z plane) with the offset 
+	# to calculate flux at the surface of our coil since they have a finite diameter.
+	#r[1]=radius
+	#r[2]=theta in polar coord.
+  return hcubature(r -> B(coil,Vector3(r[1]*cos(r[2]),r[1]*sin(r[2]),z))[3],[0.0,0.0],[rmax,2*pi],reltol=reltoler)
 end
+
+function inductance(asb::Assembly,reltoler=.001)
+	current!(asb,1.0)
+	induct=[0.0,0.0]
+	temp=0.0
+	for i=1:length(asb.coils)
+		rmax=asb.coils[i].rOut
+		z=asb.coils[i].offset[3]+asb.coils[i].Dr*pi
+		temp=hcubature(r -> B(asb,Vector3(r[1]*cos(r[2]),r[1]*sin(r[2]),z))[3],[0.0,0.0],[rmax,2*pi],reltol=reltoler/length(asb.coils))
+		println(temp)
+		induct[1]=induct[1]+temp[1]
+		induct[2]=induct[2]+temp[2]
+	end
+	return induct
+end
+
+
+
 
 #Calculates the resistance of a coil
 #Parameters:

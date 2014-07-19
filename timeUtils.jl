@@ -9,7 +9,7 @@ function capacitorDischarge(I0,t,tau)
 end
 #Returns the 
 function coilForce(mAsb,fAsb,t,mDischargeProfile,fDischargeProfile, mOffset)
-	println(t)
+	#println(t)
 	current!(mAsb,mDischargeProfile(t))
 	current!(fAsb,fDischargeProfile(t))
 	translate!(mAsb,mOffset)
@@ -24,15 +24,15 @@ end
 #fAsb: Assembly that is fixed
 #mDischargeProfile: The time dependent discharge profile of our current source in the mAsb
 #fDischargeProfile: The time dependent discharge profile of our current source in the fAsb
-function coilStateAfterDischarge(loadMass,mAsb,fAsb,mDischargeProfile,fDischargeProfile,initCond, tMax)
-	println("Calculating Coil State")
-	F(t,z)=magForce(t,z,loadMass,mAsb,fAsb,mDischargeProfile,fDischargeProfile)
-	t_out,y_out=ode45(F,[0,tMax],initCond)
+function coilStateAfterDischarge(loadMass,mAsb,fAsb,mDischargeProfile,fDischargeProfile,initCond, tMax,xOff,yOff)
+	#println("Calculating Coil State")
+	For(t,z)=magForce(t,z,loadMass,mAsb,fAsb,mDischargeProfile,fDischargeProfile,xOff,yOff)
+	t_out,y_out=ode45(For,[0,tMax],initCond)
 	return t_out,y_out
 end
 
-function magForce(t::Float64,z,loadMass,mAsb,fAsb,mDischargeProfile,fDischargeProfile)
-	return [z[2],(coilForce(mAsb,fAsb,t,mDischargeProfile,fDischargeProfile,Vector3(0.0,0.0,z[1]))/loadMass) - 9.831]
+function magForce(t::Float64,z,loadMass,mAsb,fAsb,mDischargeProfile,fDischargeProfile,xOff,yOff)
+	return [z[2],(coilForce(mAsb,fAsb,t,mDischargeProfile,fDischargeProfile,Vector3(xOff,yOff,z[1]))/loadMass) - 9.831]
 end
 
 function energyCalculator(loadMass, startHeight,endHeight,finalSpeed)

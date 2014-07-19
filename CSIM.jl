@@ -6,7 +6,7 @@ module CSIM
 
 export Coil,Assembly
 
-using PyPlot
+#using PyPlot
 
 # abstract type representing a coil geometry
 abstract Coil
@@ -31,7 +31,7 @@ include("coilUtils.jl")
 include("assemblyDes.jl")
 
 #Contains the code for the visualization tools with the code
-include("visualUtils.jl")
+#include("visualUtils.jl")
 
 #Contains the code for the optimization utilities for the simulator
 #include("optimizationUtils.jl")
