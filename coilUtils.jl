@@ -70,23 +70,31 @@ end
 #coil, coil whose inductance we wish to calculate
 #reltoler is the relative tolerance that the integrator will integrate to.
 function inductance(coil::linSpiral,reltoler=.001)
+	println("WARNING FUNCTION NOT PASSING BASIC TESTS")
 	rmax=coil.rOut
 	coil.I=1.0
-	z=coil.offset[3]+coil.Dr*pi#The z component of the coil (assumed parallel to the z plane) with the offset 
+	println("hello")
+	println(coil.I)
+	z=coil.offset[3]+coil.Dr*pi/2#The z component of the coil (assumed parallel to the z plane) with the offset 
 	# to calculate flux at the surface of our coil since they have a finite diameter.
 	#r[1]=radius
 	#r[2]=theta in polar coord.
-  return hcubature(r -> B(coil,Vector3(r[1]*cos(r[2]),r[1]*sin(r[2]),z))[3],[0.0,0.0],[rmax,2*pi],reltol=reltoler)
+  return hcubature(r -> r[1]*B(coil,Vector3(r[1]*cos(r[2]),r[1]*sin(r[2]),z))[3],[0.0,0.0],[rmax,2*pi],reltol=reltoler)
 end
 
+#Calculates the inductance of an assembly
+#Parameters: 
+#asb, assembly whose induction we wish to calculate 
+#reltoler, relative tolerance of the integrator
 function inductance(asb::Assembly,reltoler=.001)
+	println("WARNING FUNCTION NOT PASSING BASIC TESTS")
 	current!(asb,1.0)
 	induct=[0.0,0.0]
 	temp=0.0
 	for i=1:length(asb.coils)
 		rmax=asb.coils[i].rOut
 		z=asb.coils[i].offset[3]+asb.coils[i].Dr*pi
-		temp=hcubature(r -> B(asb,Vector3(r[1]*cos(r[2]),r[1]*sin(r[2]),z))[3],[0.0,0.0],[rmax,2*pi],reltol=reltoler/length(asb.coils))
+		temp=hcubature(r -> r[1]*B(asb,Vector3(r[1]*cos(r[2]),r[1]*sin(r[2]),z))[3],[0.0,0.0],[rmax,2*pi],reltol=reltoler/length(asb.coils))
 		println(temp)
 		induct[1]=induct[1]+temp[1]
 		induct[2]=induct[2]+temp[2]

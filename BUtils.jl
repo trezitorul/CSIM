@@ -1,6 +1,6 @@
 #BUtils.jl
 #This is where the magnetic calculation models and utlities reside
-export biotSavart,B,lorentzForce,zForce
+export biotSavart,B,lorentzForce,zForce, M, MIntegrand
 using Cubature
 #mu0=mu/(4pi), mu is the magnetic permitivity
 mu0=(1/10^7)
@@ -137,3 +137,58 @@ function lorentzForce(mAsbs,asbs)
   end
   return netF
 end
+
+function MIntegrand(coil1, coil2,x)
+  f,df=position(coil1,x[1])
+  g,dg=position(coil2,x[2])
+  out=dot(df,dg)/sqrt((dot(f-g,f-g)))
+  return out
+end
+
+#Implementation of Mutual Inductance calculation
+#Paremeters:
+#coil1, coil2, assemblies which are sharing the mutual inductance terms
+#reltoler, relative tolerance of error
+#Output: The mutual Inductance betwen the two assemblies
+#NOTE: Mutual Inductance is outputed multiplied by 10^7. 
+function M(coil1::Coil, coil2::Coil, reltoler=.001)
+  return hcubature(x -> MIntegrand(coil1,coil2,x),[minimum(coil1),minimum(coil2)],[maximum(coil1),maximum(coil2)],reltol=reltoler)
+end
+
+#Implementation of Mutual Inductance calculation
+#Paremeters:
+#coil, which we are computing the mutual inductance to
+#asb, assembly to which we are computing the mutual inductance
+#reltoler, relative tolerance of error
+#Output: The mutual Inductance betwen the two assemblies
+#NOTE: Mutual Inductance is outputed multiplied by 10^7. 
+function M(coil::Coil, asb::Assembly, reltoler=.001)
+  netM=[0.0,0.0]
+  for coils=asb.coils
+    temp=M(coil,coils,reltoler/length(asb.coils))
+    println(temp)
+    netM[1]=netM[1]+temp[1]
+    netM[2]=netM[2]+temp[2]
+  end
+  return netM
+end
+
+#Implementation of Mutual Inductance calculation
+#Paremeters:
+#asb1, asb2, assemblies which are sharing the mutual inductance terms
+#reltoler, relative tolerance of error
+#Output: The mutual Inductance betwen the two assemblies
+#NOTE: Mutual Inductance is outputed multiplied by 10^7.
+function M(asb1::Assembly, asb2::Assembly, reltoler=.001)
+  netM=[0.0,0.0]
+  for coils=asb1.coils
+    temp=M(coils,asb2,reltoler/length(asb1.coils))
+    netM[1]=netM[1]+temp[1]
+    netM[2]=netM[2]+temp[2]
+  end
+  return netM
+end
+
+
+
+

@@ -86,7 +86,7 @@ end
 function translate(asb::Assembly,r::Vector3{Float64})
 	output=deepcopy(asb)
 	for i=1:length(asb.coils)
-		translate!(output[i],r)
+		translate!(output.coils[i],r)
 	end
 	return output
 end
