@@ -1,6 +1,6 @@
 #BUtils.jl
 #This is where the magnetic calculation models and utlities reside
-export biotSavart,B,lorentzForce,zForce, M, MIntegrand
+export biotSavart,B,lorentzForce,zForce, M, DZM, DDZM 
 using Cubature
 #mu0=mu/(4pi), mu is the magnetic permitivity
 mu0=(1/10^7)
@@ -130,7 +130,7 @@ end
 #mAsbs, list of rigidly attached assemblies on which we want to find the net force
 #asbs, list of assemblies that we use to compute the magnetic field acting on the mAsbs
 #Note: The B used is missing the mu scaling so the force involved here is multiplied by 10^7
-function lorentzForce(mAsbs,asbs)
+function lorentzForce(mAsbs::Assembly,asbs::Assembly)
   netF=lorentzForce(mAsbs[1],asbs)
   for mAsb=mAsbs[2:end]
     netF=netF+lorentzForce(mAsb,asbs)
@@ -138,6 +138,46 @@ function lorentzForce(mAsbs,asbs)
   return netF
 end
 
+
+#Notice that to compute values for multiple layer integrals as is required for mutual inductance there is a lot
+#of boiler plate code which is just computing coil by coil and going through them. This eliminates the boiler code
+#and performs the stepwise integrals required without having to rewrite boiler plate code over and over again.
+#Parameters:
+#func is the coil, coil function for computing various things like mutual inductance and the like
+#coil is the coil and asb is the assembly we are iterating through
+#Output, the net interaction between the coil and the asb
+#NOTE THIS ONLY WORKS IF THE FUNCTION IS LINEAR!!!!
+
+function asbIterator(func::Function, coil::Coil, asb::Assembly, reltoler=.001)
+  netOut=[0.0,0.0]
+  for coils=asb.coils
+    temp=func(coil,coils,reltoler/length(asb.coils))
+    println(temp)
+    netOut[1]=netOut[1]+temp[1]
+    netOut[2]=netOut[2]+temp[2]
+  end
+  return netOut
+end
+
+#Notice that to compute values for multiple layer integrals as is required for mutual inductance there is a lot
+#of boiler plate code which is just computing coil by coil and going through them. This eliminates the boiler code
+#and performs the stepwise integrals required without having to rewrite boiler plate code over and over again.
+#Parameters:
+#func is the coil, coil function for computing various things like mutual inductance and the like
+#coil is the coil and asb is the assembly we are iterating through
+#Output, the net interaction between the coil and the asb
+#NOTE THIS ONLY WORKS IF THE FUNCTION IS LINEAR!!!!
+function asbIterator(func::Function ,asb1::Assembly, asb2::Assembly, reltoler=.001)
+  netOut=[0.0,0.0]
+  for coils=asb1.coils
+    temp=func(coils,asb2,reltoler/length(asb1.coils))
+    netOut[1]=netOut[1]+temp[1]
+    netOut[2]=netOut[2]+temp[2]
+  end
+  return netOut
+end
+
+#Integrand of the mutual inductance integral
 function MIntegrand(coil1, coil2,x)
   f,df=position(coil1,x[1])
   g,dg=position(coil2,x[2])
@@ -189,6 +229,92 @@ function M(asb1::Assembly, asb2::Assembly, reltoler=.001)
   return netM
 end
 
+function DZMIntegrand(mCoil, sCoil,x)
+  f,df=position(mCoil,x[1])
+  g,dg=position(sCoil,x[2])
+  out=dot(df,dg)/(sqrt(dot(f-g,f-g))^3)
+  return out
+end
+
+#Implementation of change in Mutual induction as a function of Z the separation between coils
+#NOTE THIS IS ONLY VALID FOR PARALLEL COILS moving in PARALLEL WAYS!!!!!! NOT IN GENERAL
+#YOU HAVE BEEN WARNED
+#mCoil, the mobile coil
+#sCoil, the stationary coil
+#reltoler is the relative error tolerance to which the integral is computed
+#NOTE THIS IS COMPUTED as DZM*10^7 to avoid moving around tiny numbers
+function DZM(mCoil::Coil, sCoil::Coil, reltoler=.001)
+  Z=(mCoil.offset-sCoil.offset)[3]
+  integ=hcubature(x -> DZMIntegrand(mCoil,sCoil,x),[minimum(mCoil),minimum(sCoil)],[maximum(mCoil),maximum(sCoil)],reltol=reltoler)
+  return (-Z*integ[1], abs(Z*integ[2]))
+end
+
+#Implementation of Mutual Inductance calculation
+#Paremeters:
+#coil, which we are computing the mutual inductance to
+#asb, assembly to which we are computing the mutual inductance
+#reltoler, relative tolerance of error
+#Output: The mutual Inductance betwen the two assemblies
+#NOTE: Mutual Inductance is outputed multiplied by 10^7. 
+function DZM(coil::Coil, asb::Assembly, reltoler=.001)
+  return asbIterator(DZM,coil,asb)
+end
+
+#Implementation of Mutual Inductance calculation
+#Paremeters:
+#coil, which we are computing the mutual inductance to
+#asb, assembly to which we are computing the mutual inductance
+#reltoler, relative tolerance of error
+#Output: The mutual Inductance betwen the two assemblies
+#NOTE: Mutual Inductance is outputed multiplied by 10^7. 
+function DZM(mAsb::Assembly, sAsb::Assembly, reltoler=.001)
+  return asbIterator(DZM,mAsb,sAsb)
+end
 
 
+function DDZMIntegrand(mCoil, sCoil,x)
+  f,df=position(mCoil,x[1])
+  g,dg=position(sCoil,x[2])
+  out=dot(df,dg)/(sqrt(dot(f-g,f-g))^5)
+  return out
+end
 
+function DDZM(mObj,sObj, DM, reltoler=.001)
+  Z=(mObj.offset-sObj.offset)[3]
+  DDZM2=DDZMI(mObj, sObj, reltoler)
+  return DM/Z-DDZM2
+end
+
+#Implementation of change in Mutual induction as a function of Z the separation between coils
+#NOTE THIS IS ONLY VALID FOR PARALLEL COILS moving in PARALLEL WAYS!!!!!! NOT IN GENERAL
+#YOU HAVE BEEN WARNED
+#mCoil, the mobile coil
+#sCoil, the stationary coil
+#reltoler is the relative error tolerance to which the integral is computed
+#NOTE THIS IS COMPUTED as DZM*10^7 to avoid moving around tiny numbers
+function DDZMI(mCoil::Coil, sCoil::Coil, reltoler=.001)
+  Z=(mCoil.offset-sCoil.offset)[3]
+  return (3*Z^2)*hcubature(x -> DDZMIntegrand(mCoil,sCoil,x),[minimum(mCoil),minimum(sCoil)],[maximum(mCoil),maximum(sCoil)],reltol=reltoler)
+end
+
+#Implementation of Mutual Inductance calculation
+#Paremeters:
+#coil, which we are computing the mutual inductance to
+#asb, assembly to which we are computing the mutual inductance
+#reltoler, relative tolerance of error
+#Output: The mutual Inductance betwen the two assemblies
+#NOTE: Mutual Inductance is outputed multiplied by 10^7. 
+function DDZMI(coil::Coil, asb::Assembly,DM, reltoler=.001)
+  return asbIterator(DDZM,coil,asb, reltoler)
+end
+
+#Implementation of Mutual Inductance calculation
+#Paremeters:
+#coil, which we are computing the mutual inductance to
+#asb, assembly to which we are computing the mutual inductance
+#reltoler, relative tolerance of error
+#Output: The mutual Inductance betwen the two assemblies
+#NOTE: Mutual Inductance is outputed multiplied by 10^7. 
+function DDZMI(mAsb, sAsb::Assembly,reltoler=.001)
+  return asbIterator(DZM,mAsb,sAsb,reltoler)
+end

@@ -99,6 +99,7 @@ end
 function translate!(asb::Assembly,r::Vector3{Float64})
 	for i=1:length(asb.coils)
 	#	println("Translate")
+		asb.offset=asb.offset+r
 		translate!(asb.coils[i],r)
 	end
 	#println("FinishedTranslate")

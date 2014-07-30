@@ -6,7 +6,9 @@ module CSIM
 
 export Coil,Assembly
 
+using ImmutableArrays
 #using PyPlot
+
 
 # abstract type representing a coil geometry
 abstract Coil
@@ -22,6 +24,13 @@ import Base: minimum, maximum
 #Geometric configuration of the coils
 type Assembly
 	coils::Vector{Coil} # Array of coils, used to store a particular geometric configuration of coils
+	offset::Vector3{Float64}#The offset of the whole assembly
+	I::Float64#Current of the assembly
+	function Assembly(coils,offset,I)
+		map(coil->current!(coil,I),coils)
+		map(coil->translate!(coil,offset),coils)
+		new(coils,offset,I)
+	end
 end
 
 #Contains the module coilUtils that has utilities related to the coil type
